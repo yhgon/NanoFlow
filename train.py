@@ -24,6 +24,10 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # *****************************************************************************
+
+import warnings 
+warnings.filterwarnings("ignore")
+
 import argparse
 import json
 import os
@@ -239,11 +243,15 @@ def train(model, num_gpus, output_directory, epochs, learning_rate, lr_decay_ste
 
     model.train()
     epoch_offset = max(0, int(iteration / len(train_loader)))
+    
+    iter_size = len(train_loader)
     # ================ MAIN TRAINNIG LOOP! ===================
     for epoch in range(epoch_offset, epochs):
-        print("Epoch: {}".format(epoch))
+        tic_epoch = time.time()
+        #print("Epoch: {}".format(epoch))
+        
         for i, batch in enumerate(train_loader):
-            tic = time.time()
+            tic_iter = time.time()
 
             model.zero_grad()
 
@@ -270,9 +278,11 @@ def train(model, num_gpus, output_directory, epochs, learning_rate, lr_decay_ste
                 grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), 5.)
             optimizer.step()
 
-            toc = time.time() - tic
-
-            print("{}:\t{:.9f}, {:.4f} seconds".format(iteration, reduced_loss, toc))
+            toc_iter = time.time()
+            dur_iter = toc_iter - tic_iter 
+            
+        
+            print("{:5d}/{:5d}|{:12d}|{:6d} /{:6d} | loss \t{:.9f}, {:.4f}sec/iter".format(epoch,epochs, iteration, i, iter_size, reduced_loss, dur_iter), end='')
             if with_tensorboard:
                 logger.add_scalar('training_loss', reduced_loss, i + len(train_loader) * epoch)
                 logger.add_scalar('lr', get_lr(optimizer), i + len(train_loader) * epoch)
@@ -292,8 +302,15 @@ def train(model, num_gpus, output_directory, epochs, learning_rate, lr_decay_ste
 
             iteration += 1
             scheduler.step()
-
+        toc_epoch=time.time()
+        dur_epoch = toc_epoch - tic_epoch
+        print("{:.4f} sec/epoch".format(dur_epoch), end='')
+        tic_eval=time.time()
         evaluate()
+        toc_eval = time.time()
+        dur_eval = toc_eval - tic_eval 
+        print(" eval {:.4f} sec/epoch".format(dur_eval), end='')
+
 
 def synthesize_master(model, num_gpus, temp, output_directory, epochs, learning_rate, lr_decay_step, lr_decay_gamma,
                       sigma, iters_per_checkpoint, batch_size, seed, fp16_run,
