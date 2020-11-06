@@ -1,5 +1,7 @@
 ## NanoFlow: Scalable Normalizing Flows with Sublinear Parameter Complexity
 
+fork from official pytorch implementation 
+
 This repository is an official PyTorch implementation of the paper:
  
 > Sang-gil Lee, Sungwon Kim, Sungroh Yoon. "NanoFlow: Scalable Normalizing Flows with Sublinear Parameter Complexity." _NeurIPS_ (2020).
@@ -42,6 +44,30 @@ The codebase provides two real-world applications of flow-based models with our 
 3. Edit the configuration file and train the model.
 
     Below are the example commands using `nanoflow-h16-r128-emb512.json`
+
+   ```command
+   python train.py -c configs/nanoflow-h16-r128-emb1024-f16.json 
+   ```
+   ```command
+   $python train.py -c configs/nanoflow-h16-r128-emb1024-f16.json 
+   ```
+   
+   train logs for some configuration
+   ```
+   number of params 4936324  
+   1.6sec/iter  with mem usage 14GB on 8 GPU V100 16GB   ( FP16 off, 16 batch)
+   1.6sec/iter  with mem usage 14GB on 8 GPU V100 16GB   ( FP16 off, 16 batch)  
+   2.2sec/iter  with mem usage xxGB on 8 GPU V100 16GB   ( FP16 on, 16 batch)   743 
+   2.4sec/iter  with mem usage 11GB on 8 GPU V100 16GB   ( FP16 on, 24 batch)   491
+   2.4sec/iter  with mem usage 14.5GB on 8 GPU V100 16GB   ( FP16 on, 32 batch)   368     
+   x.xsec/iter  with mem usage OOM on 8 GPU V100 16GB   ( FP16 on, 40 batch)    OOM  
+   
+   
+   
+   
+   ```
+
+
 
    ```command
    nano configs/nanoflow-h16-r128-emb512.json
